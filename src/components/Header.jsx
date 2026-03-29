@@ -9,7 +9,7 @@ export default function Header() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-white leading-tight">
-            Glow<span className="text-brand-secondary">Monitor</span>
+            Gluco<span className="text-brand-secondary">Sense</span>
           </h1>
           <p className="text-xs text-gray-500 font-medium tracking-wide">NON-INVASIVE GLUCOSE TRACKER</p>
         </div>

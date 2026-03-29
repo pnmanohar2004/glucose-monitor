@@ -48,7 +48,14 @@ export default function RecentLogs({ readings, onDelete }) {
 
                 {/* Details */}
                 <div className="flex-1 min-w-0">
-                  <StatusBadge value={r.glucose} className="mb-1" />
+                  <div className="flex items-center gap-2 mb-1">
+                    <StatusBadge value={r.glucose} />
+                    {r.type && (
+                      <span className="text-[10px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded bg-dark-500 text-gray-400 border border-dark-400">
+                        {r.type}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-gray-500 flex items-center gap-1">
                     <Clock size={10} />
                     {format(new Date(r.datetime), 'MMM d, yyyy · h:mm a')}

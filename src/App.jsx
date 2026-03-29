@@ -4,6 +4,8 @@ import StatsCards from './components/StatsCards.jsx'
 import LogMeasurementForm from './components/LogMeasurementForm.jsx'
 import GlucoseChart from './components/GlucoseChart.jsx'
 import RecentLogs from './components/RecentLogs.jsx'
+import HardwareIntegration from './components/HardwareIntegration.jsx'
+import RamanSpectroscopyInfo from './components/RamanSpectroscopyInfo.jsx'
 import { loadReadings, saveReadings } from './utils.js'
 
 export default function App() {
@@ -46,11 +48,17 @@ export default function App() {
             <GlucoseChart readings={readings} />
           </div>
         </div>
+
+        {/* Raman Spectroscopy Section */}
+        <RamanSpectroscopyInfo />
+
+        {/* Hardware Integration Section */}
+        <HardwareIntegration />
       </main>
 
       {/* Footer */}
       <footer className="text-center py-4 text-xs text-gray-700 border-t border-dark-600/30">
-        GlowMonitor · Data stored locally · Not a substitute for medical advice
+        GlucoSense · Data stored locally · Not a substitute for medical advice
       </footer>
     </div>
   )

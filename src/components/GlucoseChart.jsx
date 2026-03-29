@@ -18,10 +18,17 @@ function CustomTooltip({ active, payload }) {
   const status = classifyGlucose(d.glucose)
   return (
     <div className="bg-dark-700 border border-dark-500 rounded-xl p-3 shadow-xl text-xs">
-      <p className="text-gray-400">{format(new Date(d.datetime), 'MMM d, HH:mm')}</p>
-      <p className="text-white font-bold text-base mt-0.5">{d.glucose} <span className="text-gray-400 text-xs font-normal">mg/dL</span></p>
+      <div className="flex justify-between items-start gap-4 mb-2">
+        <p className="text-gray-400">{format(new Date(d.datetime), 'MMM d, HH:mm')}</p>
+        {d.type && (
+          <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-dark-500 text-gray-400 border border-dark-400">
+            {d.type}
+          </span>
+        )}
+      </div>
+      <p className="text-white font-bold text-base">{d.glucose} <span className="text-gray-400 text-xs font-normal">mg/dL</span></p>
       <span className={`inline-block mt-1 px-2 py-0.5 rounded-full ${status.bg} ${status.text} font-semibold`}>{status.label}</span>
-      {d.notes && <p className="text-gray-500 mt-1 italic">{d.notes}</p>}
+      {d.notes && <p className="text-gray-500 mt-1 italic leading-tight">{d.notes}</p>}
     </div>
   )
 }
@@ -92,7 +99,7 @@ export default function GlucoseChart({ readings }) {
       {/* Legend */}
       <div className="flex gap-4 mt-3 justify-center flex-wrap">
         {[
-          { color: '#EF4444', label: 'Low (<70)' },
+          { color: '#EF4444', label: 'Hypoglycemia (<70)' },
           { color: '#22C55E', label: 'Normal (70-99)' },
           { color: '#F59E0B', label: 'Elevated (100-125)' },
           { color: '#F97316', label: 'High (≥126)' },

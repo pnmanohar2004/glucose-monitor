@@ -10,6 +10,7 @@ export default function LogMeasurementForm({ onSave }) {
 
   const [glucose, setGlucose] = useState('')
   const [datetime, setDatetime] = useState(localISOString)
+  const [type, setType] = useState('fasting')
   const [notes, setNotes] = useState('')
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
@@ -29,6 +30,7 @@ export default function LogMeasurementForm({ onSave }) {
       id: generateId(),
       glucose: val,
       datetime: new Date(datetime).toISOString(),
+      type: type,
       notes: notes.trim(),
     }
 
@@ -76,15 +78,32 @@ export default function LogMeasurementForm({ onSave }) {
         </div>
 
         {/* Date & Time */}
-        <div>
-          <label className="block text-xs text-gray-400 font-medium mb-1.5">Date & Time</label>
-          <input
-            type="datetime-local"
-            value={datetime}
-            onChange={e => setDatetime(e.target.value)}
-            className="input-field"
-            style={{ colorScheme: 'dark' }}
-          />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs text-gray-400 font-medium mb-1.5">Date & Time</label>
+            <input
+              type="datetime-local"
+              value={datetime}
+              onChange={e => setDatetime(e.target.value)}
+              className="input-field"
+              style={{ colorScheme: 'dark' }}
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-400 font-medium mb-1.5">Reading Type</label>
+            <select
+              value={type}
+              onChange={e => setType(e.target.value)}
+              className="input-field appearance-none"
+            >
+              <option value="fasting">Fasting</option>
+              <option value="breakfast">Breakfast</option>
+              <option value="lunch">Lunch</option>
+              <option value="dinner">Dinner</option>
+              <option value="snack">Snack</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
         </div>
 
         {/* Notes */}
