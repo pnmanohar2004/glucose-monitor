@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Plus, ClipboardEdit } from 'lucide-react'
-import { classifyGlucose, generateId } from '../utils'
+import { classifyGlucose } from '../utils'
 
 export default function LogMeasurementForm({ onSave }) {
   const now = new Date()
@@ -27,7 +27,6 @@ export default function LogMeasurementForm({ onSave }) {
     setError('')
 
     const reading = {
-      id: generateId(),
       glucose: val,
       datetime: new Date(datetime).toISOString(),
       type: type,

@@ -1,4 +1,6 @@
-import { useState, useCallback } from 'react'
+﻿import { useCallback } from 'react'
+import { useQuery, useMutation } from 'convex/react'
+import { api } from '../convex/_generated/api'
 import Header from './components/Header.jsx'
 import StatsCards from './components/StatsCards.jsx'
 import LogMeasurementForm from './components/LogMeasurementForm.jsx'
@@ -6,26 +8,26 @@ import GlucoseChart from './components/GlucoseChart.jsx'
 import RecentLogs from './components/RecentLogs.jsx'
 import HardwareIntegration from './components/HardwareIntegration.jsx'
 import RamanSpectroscopyInfo from './components/RamanSpectroscopyInfo.jsx'
-import { loadReadings, saveReadings } from './utils.js'
 
 export default function App() {
-  const [readings, setReadings] = useState(() => loadReadings())
+  // Real-time readings from Convex — auto-updates across all clients
+  const readings = useQuery(api.readings.listReadings) ?? []
 
-  const handleSave = useCallback((newReading) => {
-    setReadings(prev => {
-      const updated = [...prev, newReading]
-      saveReadings(updated)
-      return updated
-    })
-  }, [])
+  const saveReadingMutation = useMutation(api.readings.saveReading)
+  const deleteReadingMutation = useMutation(api.readings.deleteReading)
 
-  const handleDelete = useCallback((id) => {
-    setReadings(prev => {
-      const updated = prev.filter(r => r.id !== id)
-      saveReadings(updated)
-      return updated
+  const handleSave = useCallback(async (newReading) => {
+    await saveReadingMutation({
+      glucose: newReading.glucose,
+      datetime: newReading.datetime,
+      type: newReading.type,
+      notes: newReading.notes,
     })
-  }, [])
+  }, [saveReadingMutation])
+
+  const handleDelete = useCallback(async (id) => {
+    await deleteReadingMutation({ id })
+  }, [deleteReadingMutation])
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -58,7 +60,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="text-center py-4 text-xs text-gray-700 border-t border-dark-600/30">
-        GlucoSense · Data stored locally · Not a substitute for medical advice
+        GlucoSense · Powered by Convex · Not a substitute for medical advice
       </footer>
     </div>
   )

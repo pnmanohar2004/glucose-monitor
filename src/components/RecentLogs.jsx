@@ -29,7 +29,7 @@ export default function RecentLogs({ readings, onDelete }) {
             const status = classifyGlucose(r.glucose)
             return (
               <div
-                key={r.id}
+                key={r._id}
                 className="flex items-center gap-3 p-3 rounded-xl bg-dark-700/60 border border-dark-600/50 hover:border-brand-primary/30 transition-all duration-200 group animate-fade-in"
               >
                 {/* Color indicator */}
@@ -67,7 +67,7 @@ export default function RecentLogs({ readings, onDelete }) {
 
                 {/* Delete */}
                 <button
-                  onClick={() => onDelete(r.id)}
+                  onClick={() => onDelete(r._id)}
                   className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-900/30 transition-all duration-200 flex-shrink-0"
                   title="Delete reading"
                 >
