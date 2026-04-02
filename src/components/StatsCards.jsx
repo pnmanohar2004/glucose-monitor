@@ -3,12 +3,12 @@ import { TrendingUp, TrendingDown, Minus, Activity } from 'lucide-react'
 import { classifyGlucose } from '../utils'
 
 function TrendIcon({ readings }) {
-  if (readings.length < 2) return <Minus size={14} className="text-gray-500" />
+  if (readings.length < 2) return <Minus size={14} className="text-slate-500" />
   const last = readings[readings.length - 1].glucose
   const prev = readings[readings.length - 2].glucose
-  if (last > prev) return <TrendingUp size={14} className="text-red-400" />
-  if (last < prev) return <TrendingDown size={14} className="text-green-400" />
-  return <Minus size={14} className="text-gray-500" />
+  if (last > prev) return <TrendingUp size={14} className="text-orange-500" />
+  if (last < prev) return <TrendingDown size={14} className="text-emerald-500" />
+  return <Minus size={14} className="text-slate-500" />
 }
 
 export default function StatsCards({ readings }) {
@@ -29,76 +29,76 @@ export default function StatsCards({ readings }) {
   const hypoCount = readings.filter(r => r.glucose < 70).length
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Latest Reading */}
-      <div className="stat-card col-span-2 sm:col-span-1 animate-fade-in border-l-4" style={{ borderColor: latest ? classifyGlucose(latest.glucose).color : 'transparent' }}>
-        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Latest Reading</p>
+      <div className={`glass-card p-6 flex flex-col justify-between border-l-4 ${latest ? '' : 'border-transparent'}`} style={{ borderLeftColor: latest ? classifyGlucose(latest.glucose).color : 'transparent' }}>
+        <div className="text-[10px] uppercase font-black tracking-widest text-slate-400 dark:text-slate-500 mb-4">Latest Reading</div>
         {latest ? (
-          <>
-            <div className="flex items-end gap-2 mt-1">
-              <span className="text-4xl font-bold" style={{ color: classifyGlucose(latest.glucose).color }}>
+          <div>
+            <div className="flex items-end gap-2 mb-4">
+              <span className="text-5xl font-black text-slate-900 dark:text-white leading-none" style={{ color: classifyGlucose(latest.glucose).color }}>
                 {latest.glucose}
               </span>
-              <span className="text-sm text-gray-400 mb-1">mg/dL</span>
-              <span className="mb-1 ml-auto">
+              <span className="text-sm font-bold text-slate-400 dark:text-slate-500 mb-1">mg/dL</span>
+              <span className="ml-auto mb-2">
                 <TrendIcon readings={readings} />
               </span>
             </div>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center gap-3 mt-auto pt-2">
               <StatusBadge value={latest.glucose} />
-              {latest.type && <span className="text-[10px] text-gray-500 uppercase font-bold">{latest.type}</span>}
+              {latest.type && <span className="text-[10px] uppercase font-black text-slate-400 dark:text-slate-500">{latest.type}</span>}
             </div>
-          </>
+          </div>
         ) : (
-          <p className="text-gray-600 text-sm mt-2">No readings yet</p>
+          <div className="text-sm font-bold text-slate-400 dark:text-slate-600 mt-2">No readings yet</div>
         )}
       </div>
 
       {/* Fasting Avg */}
-      <div className="stat-card animate-fade-in">
-        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Fasting Avg</p>
+      <div className="glass-card p-6 flex flex-col justify-between">
+        <div className="text-[10px] uppercase font-black tracking-widest text-slate-400 dark:text-slate-500 mb-4">Fasting Avg</div>
         {avgFasting ? (
-          <>
-            <div className="flex items-end gap-1 mt-1">
-              <span className="text-3xl font-bold text-brand-secondary">{avgFasting}</span>
-              <span className="text-sm text-gray-400 mb-1">mg/dL</span>
+          <div>
+             <div className="flex items-end gap-2 mb-4">
+              <span className="text-4xl font-black text-purple-500 dark:text-purple-400 leading-none">{avgFasting}</span>
+              <span className="text-sm font-bold text-slate-400 dark:text-slate-500 mb-1">mg/dL</span>
             </div>
-            <p className="text-[10px] text-gray-600 mt-1 uppercase font-semibold">Goal: 70–99 mg/dL</p>
-          </>
+            <div className="text-[9px] uppercase font-black tracking-widest text-slate-400 dark:text-slate-600 mt-auto pt-2">Goal: 70–99 mg/dL</div>
+          </div>
         ) : (
-          <p className="text-gray-600 text-sm mt-2">—</p>
+           <div className="text-4xl font-black text-slate-300 dark:text-slate-800 leading-none">—</div>
         )}
       </div>
 
       {/* Post-Meal Avg */}
-      <div className="stat-card animate-fade-in">
-        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Post-Meal Avg</p>
+      <div className="glass-card p-6 flex flex-col justify-between">
+        <div className="text-[10px] uppercase font-black tracking-widest text-slate-400 dark:text-slate-500 mb-4">Post-Meal Avg</div>
         {avgMeal ? (
-          <>
-            <div className="flex items-end gap-1 mt-1">
-              <span className="text-3xl font-bold text-purple-300">{avgMeal}</span>
-              <span className="text-sm text-gray-400 mb-1">mg/dL</span>
+          <div>
+            <div className="flex items-end gap-2 mb-4">
+              <span className="text-4xl font-black text-blue-500 dark:text-blue-400 leading-none">{avgMeal}</span>
+              <span className="text-sm font-bold text-slate-400 dark:text-slate-500 mb-1">mg/dL</span>
             </div>
-            <p className="text-[10px] text-gray-600 mt-1 uppercase font-semibold">Goal: &lt;140 mg/dL</p>
-          </>
+            <div className="text-[9px] uppercase font-black tracking-widest text-slate-400 dark:text-slate-600 mt-auto pt-2">Goal: &lt;140 mg/dL</div>
+          </div>
         ) : (
-          <p className="text-gray-600 text-sm mt-2">—</p>
+           <div className="text-4xl font-black text-slate-300 dark:text-slate-800 leading-none">—</div>
         )}
       </div>
 
-      {/* Alerts */}
-      <div className="stat-card animate-fade-in">
-        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest flex items-center gap-1">
-          <Activity size={10} /> Clinical Alerts
-        </p>
-        <div className="mt-2 flex flex-col gap-2">
-          <div className="flex justify-between items-center group cursor-help">
-            <span className="text-xs text-orange-400 group-hover:text-orange-300 transition-colors">High / Hyper</span>
-            <span className="text-sm font-bold text-orange-400">{highCount}</span>
+       {/* Alerts Card */}
+       <div className="glass-card p-6 flex flex-col justify-between">
+        <div className="text-[10px] uppercase font-black tracking-widest text-slate-400 dark:text-slate-500 mb-4 flex items-center gap-2">
+          <Activity size={12} /> Clinical Alerts
+        </div>
+        <div className="flex flex-col gap-4 mt-2">
+          <div className="flex justify-between items-center text-sm">
+            <span className="font-bold text-orange-500">High / Hyper</span>
+            <span className="font-black text-orange-500">{highCount}</span>
           </div>
-          <div className="flex justify-between items-center group cursor-help">
-            <span className="text-xs text-red-500 group-hover:text-red-400 transition-colors font-bold">Hypoglycemia</span>
-            <span className="text-sm font-bold text-red-500 animate-pulse">{hypoCount}</span>
+          <div className="flex justify-between items-center text-sm">
+            <span className="font-bold text-red-500">Hypoglycemia</span>
+            <span className="font-black text-red-500">{hypoCount}</span>
           </div>
         </div>
       </div>

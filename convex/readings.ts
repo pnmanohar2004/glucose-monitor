@@ -1,4 +1,4 @@
-﻿import { mutation, query } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
 // Get all readings sorted by datetime ascending (for chart)
@@ -10,6 +10,19 @@ export const listReadings = query({
       .withIndex("by_datetime")
       .order("asc")
       .collect();
+  },
+});
+
+// Get recent hardware readings (from webhook)
+export const listHardwareReadings = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db
+      .query("readings")
+      .withIndex("by_datetime")
+      .order("desc")
+      .filter((q) => q.eq(q.field("type"), "Hardware Log"))
+      .take(10);
   },
 });
 

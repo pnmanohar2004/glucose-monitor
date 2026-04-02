@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, ClipboardEdit } from 'lucide-react'
+import { Plus, ClipboardEdit, Database, Activity } from 'lucide-react'
 import { classifyGlucose } from '../utils'
 
 export default function LogMeasurementForm({ onSave }) {
@@ -21,7 +21,7 @@ export default function LogMeasurementForm({ onSave }) {
     e.preventDefault()
     const val = parseFloat(glucose)
     if (!glucose || isNaN(val) || val < 1 || val > 600) {
-      setError('Please enter a valid glucose level (1–600 mg/dL)')
+      setError('Invalid Glucose range (1–600 mg/dL)')
       return
     }
     setError('')
@@ -30,7 +30,9 @@ export default function LogMeasurementForm({ onSave }) {
       glucose: val,
       datetime: new Date(datetime).toISOString(),
       type: type,
-      notes: notes.trim(),
+    }
+    if (notes.trim()) {
+      reading.notes = notes.trim()
     }
 
     onSave(reading)
@@ -41,17 +43,22 @@ export default function LogMeasurementForm({ onSave }) {
   }
 
   return (
-    <div className="glass-card p-6 animate-slide-up">
-      <h2 className="text-base font-semibold text-white flex items-center gap-2 mb-5">
-        <ClipboardEdit size={16} className="text-brand-secondary" />
-        Log Measurement
-      </h2>
+    <div className="animate-fade-in flex flex-col gap-6">
+      <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 mb-2">
+        <h3 className="text-xs font-black uppercase tracking-widest text-slate-900 dark:text-white flex items-center gap-2">
+          <ClipboardEdit size={14} className="text-purple-500" /> Log NIR Reading
+        </h3>
+        <div className="flex items-center gap-2">
+          <span className="text-[9px] font-black uppercase text-slate-400">Secure Uplink</span>
+          <div className="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-lg shadow-purple-500/50" />
+        </div>
+      </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         {/* Glucose Input */}
-        <div>
-          <label className="block text-xs text-gray-400 font-medium mb-1.5">
-            Glucose Level <span className="text-gray-600">(mg/dL)</span>
+        <div className="group">
+          <label className="block text-[10px] uppercase font-bold text-slate-400 dark:text-slate-600 tracking-widest mb-2 transition-colors group-hover:text-purple-500">
+            Glucose Magnitude <span className="opacity-50">(mg/dL)</span>
           </label>
           <div className="relative">
             <input
@@ -62,38 +69,37 @@ export default function LogMeasurementForm({ onSave }) {
               step="0.1"
               value={glucose}
               onChange={e => setGlucose(e.target.value)}
-              placeholder="e.g., 110"
-              className="input-field pr-20"
+              placeholder="e.g. 110.0"
+              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all shadow-inner"
             />
             {glucose && !isNaN(parseFloat(glucose)) && (
               <span
-                className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold px-2 py-0.5 rounded-full ${preview.bg} ${preview.text}`}
+                className={`absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black tracking-widest uppercase px-2.5 py-1 rounded-full ${preview.bg} ${preview.text} shadow-sm`}
               >
                 {preview.label}
               </span>
             )}
           </div>
-          {error && <p className="text-red-400 text-xs mt-1">{error}</p>}
+          {error && <p className="text-red-500 text-[10px] uppercase font-black tracking-widest mt-2">{error}</p>}
         </div>
 
-        {/* Date & Time */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs text-gray-400 font-medium mb-1.5">Date & Time</label>
+        {/* Date & Type Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="group">
+            <label className="block text-[10px] uppercase font-bold text-slate-400 dark:text-slate-600 tracking-widest mb-2 transition-colors group-hover:text-purple-500">Event Timestamp</label>
             <input
               type="datetime-local"
               value={datetime}
               onChange={e => setDatetime(e.target.value)}
-              className="input-field"
-              style={{ colorScheme: 'dark' }}
+              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all shadow-inner"
             />
           </div>
-          <div>
-            <label className="block text-xs text-gray-400 font-medium mb-1.5">Reading Type</label>
+          <div className="group">
+            <label className="block text-[10px] uppercase font-bold text-slate-400 dark:text-slate-600 tracking-widest mb-2 transition-colors group-hover:text-purple-500">Measurement Context</label>
             <select
               value={type}
               onChange={e => setType(e.target.value)}
-              className="input-field appearance-none"
+              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 dark:text-white appearance-none focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all shadow-inner"
             >
               <option value="fasting">Fasting</option>
               <option value="breakfast">Breakfast</option>
@@ -106,26 +112,33 @@ export default function LogMeasurementForm({ onSave }) {
         </div>
 
         {/* Notes */}
-        <div>
-          <label className="block text-xs text-gray-400 font-medium mb-1.5">Notes <span className="text-gray-600">(optional)</span></label>
+        <div className="group">
+          <label className="block text-[10px] uppercase font-bold text-slate-400 dark:text-slate-600 tracking-widest mb-2 transition-colors group-hover:text-purple-500">Observation Notes</label>
           <input
             type="text"
             value={notes}
             onChange={e => setNotes(e.target.value)}
-            placeholder="e.g., After breakfast"
-            className="input-field"
+            placeholder="Log specific physiological context..."
+            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all shadow-inner"
             maxLength={120}
           />
         </div>
 
         {/* Submit */}
-        <button type="submit" className="btn-primary mt-1" id="save-reading-btn">
+        <button 
+          type="submit" 
+          className={`w-full font-black uppercase text-[10px] tracking-[0.3em] py-4 px-6 rounded-xl transition-all duration-500 flex items-center justify-center gap-3 shadow-xl active:scale-95 ${saved ? 'bg-emerald-500 text-white' : 'bg-slate-900 text-white dark:bg-purple-500 dark:text-slate-950 dark:hover:bg-purple-400'}`} 
+          id="save-reading-btn"
+        >
           {saved ? (
-            <span className="text-green-300">✓ Saved!</span>
+             <>
+              <div className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+              Sync Successful
+            </>
           ) : (
             <>
-              <Plus size={16} />
-              Save Reading
+              <Database size={14} />
+              Log NIR Reading
             </>
           )}
         </button>

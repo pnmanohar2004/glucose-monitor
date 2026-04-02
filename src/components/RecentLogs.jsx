@@ -1,4 +1,4 @@
-import { Trash2, Clock, FileText } from 'lucide-react'
+import { Trash2, Clock, FileText, Activity, MoreHorizontal, Database, Shield } from 'lucide-react'
 import { format } from 'date-fns'
 import StatusBadge from './StatusBadge'
 import { classifyGlucose } from '../utils'
@@ -7,72 +7,63 @@ export default function RecentLogs({ readings, onDelete }) {
   const sorted = [...readings].sort((a, b) => new Date(b.datetime) - new Date(a.datetime))
 
   return (
-    <div className="glass-card p-6 animate-slide-up">
-      <h2 className="text-base font-semibold text-white mb-4 flex items-center justify-between">
-        <span className="flex items-center gap-2">
-          <FileText size={16} className="text-brand-secondary" />
-          Recent Logs
-        </span>
-        <span className="text-xs text-gray-600 font-normal">
-          {readings.length} reading{readings.length !== 1 ? 's' : ''}
-        </span>
-      </h2>
-
+    <div className="flex flex-col gap-1 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
       {sorted.length === 0 ? (
-        <div className="text-center py-8 text-gray-600">
-          <Clock size={28} className="mx-auto mb-2 opacity-30" />
-          <p className="text-sm">No readings logged yet</p>
+        <div className="text-center py-20 text-slate-500 dark:text-slate-400 flex flex-col items-center gap-4 animate-fade-in transition-all">
+          <Clock size={40} className="opacity-20" />
+          <p className="text-[10px] uppercase font-black tracking-[0.3em]">No NIR Logs Detected</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-2 max-h-96 overflow-y-auto pr-1">
+        <div className="flex flex-col">
           {sorted.map(r => {
             const status = classifyGlucose(r.glucose)
+            const isAlert = r.glucose >= 126 || r.glucose < 70
+            
             return (
               <div
                 key={r._id}
-                className="flex items-center gap-3 p-3 rounded-xl bg-dark-700/60 border border-dark-600/50 hover:border-brand-primary/30 transition-all duration-200 group animate-fade-in"
+                className="group flex flex-items-start gap-6 p-4 border-b border-slate-50 dark:border-slate-900 last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-all duration-300 animate-fade-in"
               >
-                {/* Color indicator */}
-                <div
-                  className="w-1.5 h-10 rounded-full flex-shrink-0"
-                  style={{ background: status.color }}
-                />
-
-                {/* Value */}
-                <div className="flex-shrink-0 w-16">
-                  <span className="text-lg font-bold" style={{ color: status.color }}>
-                    {r.glucose}
-                  </span>
-                  <span className="text-xs text-gray-500"> mg/dL</span>
+                {/* Timestamp */}
+                <div className="text-[10px] font-black font-mono text-slate-500 dark:text-slate-400 w-16 flex-shrink-0 pt-0.5">
+                  {format(new Date(r.datetime), 'HH:mm:ss')}
                 </div>
 
-                {/* Details */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <StatusBadge value={r.glucose} />
-                    {r.type && (
-                      <span className="text-[10px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded bg-dark-500 text-gray-400 border border-dark-400">
-                        {r.type}
+                {/* Entry Details */}
+                <div className="flex-1 min-w-0 flex flex-col gap-1">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-black text-slate-900 dark:text-white transition-colors">
+                      {isAlert ? 'ALRT:' : 'POST:'} {r.type === 'fasting' ? 'Fasting magnitude established' : `Context ${r.type} recorded`}
+                    </span>
+                    <span className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${status.bg} ${status.text} shadow-sm`}>
+                      {isAlert ? 'WARNING' : 'SUCCESS'}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 mt-1">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ background: status.color }} />
+                      <span className="text-[10px] font-bold text-slate-400 dark:text-slate-600">{r.glucose} mg/dL</span>
+                    </div>
+                    {r.notes && (
+                      <span className="text-[10px] font-bold text-blue-500 dark:text-blue-400 italic truncate opacity-60">
+                        // {r.notes}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500 flex items-center gap-1">
-                    <Clock size={10} />
-                    {format(new Date(r.datetime), 'MMM d, yyyy · h:mm a')}
-                  </p>
-                  {r.notes && (
-                    <p className="text-xs text-gray-600 italic truncate mt-0.5">{r.notes}</p>
-                  )}
                 </div>
 
-                {/* Delete */}
-                <button
-                  onClick={() => onDelete(r._id)}
-                  className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-900/30 transition-all duration-200 flex-shrink-0"
-                  title="Delete reading"
-                >
-                  <Trash2 size={14} />
-                </button>
+                {/* Actions */}
+                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                  <button
+                    onClick={() => onDelete(r._id)}
+                    className="p-2 rounded-lg text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-500/10 transition-all active:scale-90"
+                    title="Delete Reading"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                  <MoreHorizontal size={14} className="text-slate-400 dark:text-slate-500" />
+                </div>
               </div>
             )
           })}
