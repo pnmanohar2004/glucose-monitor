@@ -13,19 +13,6 @@ export const listReadings = query({
   },
 });
 
-// Get recent hardware readings (from webhook)
-export const listHardwareReadings = query({
-  args: {},
-  handler: async (ctx) => {
-    return await ctx.db
-      .query("readings")
-      .withIndex("by_datetime")
-      .order("desc")
-      .filter((q) => q.eq(q.field("type"), "Hardware Log"))
-      .take(10);
-  },
-});
-
 // Save a new reading
 export const saveReading = mutation({
   args: {

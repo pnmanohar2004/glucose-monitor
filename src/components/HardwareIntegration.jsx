@@ -7,7 +7,7 @@ export default function HardwareIntegration() {
   const [copiedUrl, setCopiedUrl] = useState(false)
   const webhookUrl = `${import.meta.env.VITE_CONVEX_SITE_URL}/add-reading`
   
-  const hardwareLogs = useQuery(api.readings.listHardwareReadings) || [];
+  const hardwareLogs = useQuery(api.hardwareLogs.listLogs) || [];
 
   const handleCopy = async () => {
     try {

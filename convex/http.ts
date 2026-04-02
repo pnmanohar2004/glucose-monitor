@@ -24,7 +24,7 @@ http.route({
       }
 
       // Call the existing mutation to save the new reading
-      await ctx.runMutation(api.readings.saveReading, {
+      await ctx.runMutation(api.hardwareLogs.saveLog, {
         glucose: glucoseValue,
         datetime: payload.datetime,
         type: payload.type,
