@@ -1,61 +1,110 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
-import { api } from "./_generated/api";
+import { internal } from "./_generated/api";
 
 const http = httpRouter();
 
-// POST /add-reading — receives ESP32 sensor payload
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+function jsonResponse(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      ...corsHeaders,
+    },
+  });
+}
+
+function optionalNumber(value: unknown) {
+  if (value === undefined || value === null || value === "") {
+    return undefined;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function optionalString(value: unknown) {
+  return typeof value === "string" && value.trim() !== "" ? value : undefined;
+}
+
 http.route({
   path: "/add-reading",
   method: "POST",
   handler: httpAction(async (ctx, request) => {
+    let rawBody = "";
+
     try {
-      const body = await request.json();
+      rawBody = await request.text();
+      console.log("ESP32 raw payload received:", rawBody);
 
-      // The ESP32 sends: device, glucose_mgdl, heart_rate, spo2, wifi_rssi, glucose_status, hr_status
-      const glucose_mgdl = Number(body.glucose_mgdl);
+      const body = JSON.parse(rawBody);
+      console.log("Parsed body keys:", Object.keys(body).join(", "));
 
-      if (isNaN(glucose_mgdl)) {
-        return new Response(
-          JSON.stringify({ error: "Missing or invalid field: glucose_mgdl" }),
-          { status: 400, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } }
-        );
+      const glucose_mgdl =
+        body.glucose_mgdl !== undefined
+          ? Number(body.glucose_mgdl)
+          : body.glucose !== undefined
+            ? Number(body.glucose)
+            : NaN;
+
+      if (Number.isNaN(glucose_mgdl)) {
+        console.error("No glucose value found in payload:", rawBody);
+        return jsonResponse({
+          warning: "No glucose value found, data not saved",
+          received: body,
+        });
       }
 
-      await ctx.runMutation(api.hardwareLogs.saveLog, {
-        device:          typeof body.device === "string" ? body.device : undefined,
-        glucose_mgdl,
-        heart_rate:      body.heart_rate  !== undefined ? Number(body.heart_rate)  : undefined,
-        spo2:            body.spo2        !== undefined ? Number(body.spo2)        : undefined,
-        wifi_rssi:       body.wifi_rssi   !== undefined ? Number(body.wifi_rssi)   : undefined,
-        glucose_status:  typeof body.glucose_status === "string" ? body.glucose_status : undefined,
-        hr_status:       typeof body.hr_status      === "string" ? body.hr_status      : undefined,
-        datetime:        typeof body.datetime       === "string" ? body.datetime        : undefined,
-      });
+      const datetime =
+        typeof body.datetime === "string" ? body.datetime : new Date().toISOString();
 
-      return new Response(
-        JSON.stringify({ success: true }),
-        { status: 200, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } }
+      const mutationArgs = Object.fromEntries(
+        Object.entries({
+          device: optionalString(body.device) ?? "ESP32",
+          glucose_mgdl,
+          heart_rate: optionalNumber(body.heart_rate),
+          spo2: optionalNumber(body.spo2),
+          wifi_rssi: optionalNumber(body.wifi_rssi),
+          glucose_status: optionalString(body.glucose_status),
+          hr_status: optionalString(body.hr_status),
+          datetime,
+        }).filter(([, value]) => value !== undefined),
       );
+
+      await ctx.runMutation(internal.hardwareLogs.saveLogInternal, mutationArgs);
+
+      console.log("Saved reading: glucose_mgdl =", glucose_mgdl, "at", datetime);
+
+      return jsonResponse({ success: true, glucose_mgdl, datetime });
     } catch (err) {
-      console.error("Webhook error:", err);
-      return new Response(
-        JSON.stringify({ error: "Invalid request", details: String(err) }),
-        { status: 400, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } }
-      );
+      console.error("Webhook error. Raw body was:", rawBody, "Error:", err);
+      return jsonResponse({ received: true, error: String(err) }, 500);
     }
   }),
 });
 
-// GET /add-reading — health check
+http.route({
+  path: "/add-reading",
+  method: "OPTIONS",
+  handler: httpAction(async () => {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders,
+    });
+  }),
+});
+
 http.route({
   path: "/add-reading",
   method: "GET",
   handler: httpAction(async () => {
-    return new Response(
-      JSON.stringify({ status: "Webhook is live. POST your ESP32 data here." }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    return jsonResponse({ status: "Webhook is live. POST your ESP32 data here." });
   }),
 });
 

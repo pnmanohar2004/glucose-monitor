@@ -20,6 +20,10 @@ export default function RecentLogs({ readings, onDelete }) {
           {sorted.map(r => {
             const status = classifyGlucose(r.glucose)
             const isAlert = r.glucose >= 126 || r.glucose < 70
+            const isHardware = r.source === 'hardware'
+            const title = isHardware
+              ? `${r.device ?? 'ESP32'} webhook payload received`
+              : `${isAlert ? 'ALRT:' : 'POST:'} ${r.type === 'fasting' ? 'Fasting magnitude established' : `Context ${r.type} recorded`}`
             
             return (
               <div
@@ -35,10 +39,10 @@ export default function RecentLogs({ readings, onDelete }) {
                 <div className="flex-1 min-w-0 flex flex-col gap-1">
                   <div className="flex items-center gap-3">
                     <span className="text-xs font-black text-slate-900 dark:text-white transition-colors">
-                      {isAlert ? 'ALRT:' : 'POST:'} {r.type === 'fasting' ? 'Fasting magnitude established' : `Context ${r.type} recorded`}
+                      {title}
                     </span>
                     <span className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${status.bg} ${status.text} shadow-sm`}>
-                      {isAlert ? 'WARNING' : 'SUCCESS'}
+                      {isHardware ? (r.notes ?? 'INGESTED') : (isAlert ? 'WARNING' : 'SUCCESS')}
                     </span>
                   </div>
                   
@@ -49,23 +53,35 @@ export default function RecentLogs({ readings, onDelete }) {
                     </div>
                     {r.notes && (
                       <span className="text-[10px] font-bold text-blue-500 dark:text-blue-400 italic truncate opacity-60">
-                        // {r.notes}
+                        {isHardware ? `Status: ${r.notes}` : `// ${r.notes}`}
+                      </span>
+                    )}
+                    {isHardware && r.bpm !== undefined && (
+                      <span className="text-[10px] font-bold text-rose-500 dark:text-rose-400">
+                        {r.bpm} bpm
+                      </span>
+                    )}
+                    {isHardware && r.spo2 !== undefined && (
+                      <span className="text-[10px] font-bold text-cyan-500 dark:text-cyan-400">
+                        {r.spo2}% SpO2
                       </span>
                     )}
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                  <button
-                    onClick={() => onDelete(r._id)}
-                    className="p-2 rounded-lg text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-500/10 transition-all active:scale-90"
-                    title="Delete Reading"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                  <MoreHorizontal size={14} className="text-slate-400 dark:text-slate-500" />
-                </div>
+                {!isHardware && (
+                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                    <button
+                      onClick={() => onDelete(r._id)}
+                      className="p-2 rounded-lg text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-500/10 transition-all active:scale-90"
+                      title="Delete Reading"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                    <MoreHorizontal size={14} className="text-slate-400 dark:text-slate-500" />
+                  </div>
+                )}
               </div>
             )
           })}

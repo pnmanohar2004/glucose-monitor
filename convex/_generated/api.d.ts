@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as cleanup from "../cleanup.js";
 import type * as hardwareLogs from "../hardwareLogs.js";
 import type * as http from "../http.js";
 import type * as readings from "../readings.js";
@@ -19,6 +20,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  cleanup: typeof cleanup;
   hardwareLogs: typeof hardwareLogs;
   http: typeof http;
   readings: typeof readings;

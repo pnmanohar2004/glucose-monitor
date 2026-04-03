@@ -10,7 +10,8 @@ export default defineSchema({
   }).index("by_datetime", ["datetime"]),
   hardwareLogs: defineTable({
     device: v.optional(v.string()),
-    glucose_mgdl: v.number(),
+    glucose_mgdl: v.optional(v.number()),
+    glucose: v.optional(v.number()),
     heart_rate: v.optional(v.number()),
     spo2: v.optional(v.number()),
     wifi_rssi: v.optional(v.number()),

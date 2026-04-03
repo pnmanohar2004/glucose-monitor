@@ -126,8 +126,31 @@ export default function App() {
 
   // Real-time readings from Convex
   const readings = useQuery(api.readings.listReadings) ?? []
+  const hardwareLogs = useQuery(api.hardwareLogs.listLogs) ?? []
   const saveReadingMutation = useMutation(api.readings.saveReading)
   const deleteReadingMutation = useMutation(api.readings.deleteReading)
+
+  const dashboardReadings = [
+    ...readings.map((reading) => ({
+      ...reading,
+      source: 'manual',
+      bpm: undefined,
+      spo2: undefined,
+      rValue: undefined,
+      device: undefined,
+    })),
+    ...hardwareLogs.map((log) => ({
+      ...log,
+      glucose: log.glucose_mgdl,
+      type: log.device ?? 'ESP32',
+      notes: log.glucose_status,
+      source: 'hardware',
+      bpm: log.heart_rate,
+      spo2: log.spo2,
+      rValue: log.wifi_rssi,
+      device: log.device ?? 'ESP32',
+    })),
+  ].sort((a, b) => new Date(a.datetime) - new Date(b.datetime))
 
   const handleSave = useCallback(async (newReading) => {
     try {
@@ -161,7 +184,7 @@ export default function App() {
   return (
     <>
       <Dashboard 
-        readings={readings} 
+        readings={dashboardReadings} 
         onSave={handleSave} 
         onDelete={handleDelete} 
         onBack={() => setView('landing')}
