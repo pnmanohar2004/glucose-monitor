@@ -11,6 +11,9 @@ export default defineSchema({
   hardwareLogs: defineTable({
     glucose: v.number(),
     datetime: v.string(),
+    bpm: v.optional(v.number()),
+    spo2: v.optional(v.number()),
+    rValue: v.optional(v.number()),
     type: v.optional(v.string()),
     notes: v.optional(v.string()),
   }).index("by_datetime", ["datetime"]),

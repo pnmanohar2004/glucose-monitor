@@ -102,12 +102,18 @@ export default function HardwareIntegration() {
               <Code size={14} className="text-slate-400" />
             </div>
             <pre className="bg-slate-100 dark:bg-[#13132B] border border-slate-200 dark:border-white/10 rounded-xl p-5 text-[11px] font-mono leading-relaxed text-slate-700 dark:text-gray-300 overflow-x-auto shadow-inner h-full">
-{`// Required Content-Type: application/json
+{`// ESP32 sends (capitalized keys, no datetime needed):
+{
+  "Glucose": 157,
+  "BPM": 72,
+  "SpO2": 99,
+  "R": 88255
+}
+
+// OR standard format also works:
 {
   "glucose": 115,
-  "datetime": "2026-04-01T14:30:00",
-  "type": "Hardware Log",
-  "notes": "Automated log"
+  "datetime": "2026-04-01T14:30:00"
 }`}
             </pre>
           </div>
@@ -143,9 +149,11 @@ export default function HardwareIntegration() {
                <thead>
                  <tr className="border-b border-slate-200 dark:border-white/10">
                    <th className="py-3 px-4 font-semibold text-slate-700 dark:text-white uppercase text-[10px] tracking-wider">Time</th>
-                   <th className="py-3 px-4 font-semibold text-slate-700 dark:text-white uppercase text-[10px] tracking-wider">Glucose Level</th>
+                   <th className="py-3 px-4 font-semibold text-slate-700 dark:text-white uppercase text-[10px] tracking-wider">Glucose</th>
+                   <th className="py-3 px-4 font-semibold text-slate-700 dark:text-white uppercase text-[10px] tracking-wider hidden sm:table-cell">BPM</th>
+                   <th className="py-3 px-4 font-semibold text-slate-700 dark:text-white uppercase text-[10px] tracking-wider hidden md:table-cell">SpO2</th>
+                   <th className="py-3 px-4 font-semibold text-slate-700 dark:text-white uppercase text-[10px] tracking-wider hidden lg:table-cell">R Value</th>
                    <th className="py-3 px-4 font-semibold text-slate-700 dark:text-white uppercase text-[10px] tracking-wider hidden sm:table-cell">Type</th>
-                   <th className="py-3 px-4 font-semibold text-slate-700 dark:text-white uppercase text-[10px] tracking-wider">Notes</th>
                  </tr>
                </thead>
                <tbody>
@@ -156,8 +164,18 @@ export default function HardwareIntegration() {
                        <span className="font-bold text-slate-800 dark:text-white">{log.glucose}</span>
                        <span className="text-slate-400 text-xs ml-1">mg/dL</span>
                      </td>
-                     <td className="py-3 px-4 text-slate-600 dark:text-gray-300 text-xs hidden sm:table-cell">{log.type || '-'}</td>
-                     <td className="py-3 px-4 text-slate-500 dark:text-gray-400 text-xs italic">{log.notes || '-'}</td>
+                     <td className="py-3 px-4 hidden sm:table-cell">
+                       {log.bpm !== undefined
+                         ? <><span className="font-semibold text-rose-500 dark:text-rose-400">{log.bpm}</span><span className="text-slate-400 text-xs ml-1">bpm</span></>
+                         : <span className="text-slate-400">-</span>}
+                     </td>
+                     <td className="py-3 px-4 hidden md:table-cell">
+                       {log.spo2 !== undefined
+                         ? <><span className="font-semibold text-blue-500 dark:text-blue-400">{log.spo2}</span><span className="text-slate-400 text-xs ml-1">%</span></>
+                         : <span className="text-slate-400">-</span>}
+                     </td>
+                     <td className="py-3 px-4 text-slate-500 dark:text-gray-400 text-xs hidden lg:table-cell">{log.rValue ?? '-'}</td>
+                     <td className="py-3 px-4 text-slate-600 dark:text-gray-300 text-xs hidden sm:table-cell">{log.type || 'ESP32'}</td>
                    </tr>
                  ))}
                </tbody>
