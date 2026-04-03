@@ -4,7 +4,9 @@ import StatusBadge from './StatusBadge'
 import { classifyGlucose } from '../utils'
 
 export default function RecentLogs({ readings, onDelete }) {
-  const sorted = [...readings].sort((a, b) => new Date(b.datetime) - new Date(a.datetime))
+  const sorted = [...readings]
+    .filter(r => r && r.datetime && !isNaN(new Date(r.datetime).getTime()))
+    .sort((a, b) => new Date(b.datetime) - new Date(a.datetime))
 
   return (
     <div className="flex flex-col gap-1 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">

@@ -10,6 +10,7 @@ import RecentLogs from './components/RecentLogs.jsx'
 import HardwareIntegration from './components/HardwareIntegration.jsx'
 import LandingPage from './components/LandingPage.jsx'
 import Sidebar from './components/Sidebar.jsx'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
 
 function Dashboard({ readings, onSave, onDelete, onBack, theme, onToggleTheme }) {
   const [activeTab, setActiveTab] = useState('Historical Logs')
@@ -36,7 +37,9 @@ function Dashboard({ readings, onSave, onDelete, onBack, theme, onToggleTheme })
 
             {/* Main Chart Section: Large & Primary */}
             <div className="glass-card p-10 border-slate-200 dark:border-white/5 shadow-2xl bg-white dark:bg-dark-800">
-               <GlucoseChart readings={readings} />
+               <ErrorBoundary>
+                 <GlucoseChart readings={readings} />
+               </ErrorBoundary>
             </div>
 
             {/* Bottom Row: Form + Logs side by side */}

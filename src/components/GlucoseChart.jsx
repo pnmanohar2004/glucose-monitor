@@ -34,6 +34,7 @@ function CustomTooltip({ active, payload }) {
 
 export default function GlucoseChart({ readings }) {
   const data = [...readings]
+    .filter(r => r && r.datetime && !isNaN(new Date(r.datetime).getTime()))
     .sort((a, b) => new Date(a.datetime) - new Date(b.datetime))
     .map(r => ({
       ...r,
