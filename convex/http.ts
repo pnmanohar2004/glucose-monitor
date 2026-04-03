@@ -4,62 +4,58 @@ import { api } from "./_generated/api";
 
 const http = httpRouter();
 
-// Define a webhook that accepts POST requests
+// POST /add-reading — receives ESP32 sensor payload
 http.route({
   path: "/add-reading",
   method: "POST",
   handler: httpAction(async (ctx, request) => {
     try {
-      // Parse the JSON body from the incoming request
-      const payload = await request.json();
+      const body = await request.json();
 
-      // Handle ESP32 capitalized field names
-      const glucoseValue = Number(payload.Glucose ?? payload.glucose);
-      const bpmValue = payload.BPM;
-      const spo2Value = payload.SpO2;
-      const rValue = payload.R;
-      
-      if (isNaN(glucoseValue)) {
+      // The ESP32 sends: device, glucose_mgdl, heart_rate, spo2, wifi_rssi, glucose_status, hr_status
+      const glucose_mgdl = Number(body.glucose_mgdl);
+
+      if (isNaN(glucose_mgdl)) {
         return new Response(
-          JSON.stringify({ error: "Missing required field: Glucose" }), 
-          { status: 400, headers: { "Content-Type": "application/json" } }
+          JSON.stringify({ error: "Missing or invalid field: glucose_mgdl" }),
+          { status: 400, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } }
         );
       }
 
-      // Call the existing mutation to save the new reading
       await ctx.runMutation(api.hardwareLogs.saveLog, {
-        glucose: glucoseValue,
-        datetime: payload.datetime ?? new Date().toISOString(),
-        type: payload.type,
-        notes: payload.notes,
-        bpm: bpmValue !== undefined ? Number(bpmValue) : undefined,
-        spo2: spo2Value !== undefined ? Number(spo2Value) : undefined,
-        rValue: rValue !== undefined ? Number(rValue) : undefined,
+        device:          typeof body.device === "string" ? body.device : undefined,
+        glucose_mgdl,
+        heart_rate:      body.heart_rate  !== undefined ? Number(body.heart_rate)  : undefined,
+        spo2:            body.spo2        !== undefined ? Number(body.spo2)        : undefined,
+        wifi_rssi:       body.wifi_rssi   !== undefined ? Number(body.wifi_rssi)   : undefined,
+        glucose_status:  typeof body.glucose_status === "string" ? body.glucose_status : undefined,
+        hr_status:       typeof body.hr_status      === "string" ? body.hr_status      : undefined,
+        datetime:        typeof body.datetime       === "string" ? body.datetime        : undefined,
       });
 
-      return new Response(JSON.stringify({ success: true }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    } catch (error) {
-      console.error("Webhook error:", error);
       return new Response(
-        JSON.stringify({ error: "Invalid request format" }), 
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        JSON.stringify({ success: true }),
+        { status: 200, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } }
+      );
+    } catch (err) {
+      console.error("Webhook error:", err);
+      return new Response(
+        JSON.stringify({ error: "Invalid request", details: String(err) }),
+        { status: 400, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } }
       );
     }
   }),
 });
 
-// Add GET route for testing
+// GET /add-reading — health check
 http.route({
   path: "/add-reading",
   method: "GET",
   handler: httpAction(async () => {
-    return new Response(JSON.stringify({ status: "Webhook is active" }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ status: "Webhook is live. POST your ESP32 data here." }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
   }),
 });
 
