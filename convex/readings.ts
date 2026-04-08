@@ -1,10 +1,12 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireAuth } from "./auth";
 
 // Get all readings sorted by datetime ascending (for chart)
 export const listReadings = query({
   args: {},
   handler: async (ctx) => {
+    await requireAuth(ctx);
     return await ctx.db
       .query("readings")
       .withIndex("by_datetime")
@@ -22,6 +24,7 @@ export const saveReading = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await requireAuth(ctx);
     return await ctx.db.insert("readings", {
       glucose: args.glucose,
       datetime: args.datetime,
@@ -35,6 +38,7 @@ export const saveReading = mutation({
 export const deleteReading = mutation({
   args: { id: v.id("readings") },
   handler: async (ctx, args) => {
+    await requireAuth(ctx);
     await ctx.db.delete(args.id);
   },
 });
@@ -52,6 +56,7 @@ export const migrateReadings = mutation({
     ),
   },
   handler: async (ctx, args) => {
+    await requireAuth(ctx);
     let count = 0;
     for (const r of args.readings) {
       await ctx.db.insert("readings", r);

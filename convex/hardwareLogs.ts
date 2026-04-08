@@ -1,5 +1,6 @@
 import { internalMutation, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireAuth } from "./auth";
 
 function buildHardwareLogDoc(args: {
   device?: string;
@@ -48,6 +49,7 @@ function normalizeHardwareLog(doc: {
 export const listLogs = query({
   args: {},
   handler: async (ctx) => {
+    await requireAuth(ctx);
     const docs = await ctx.db
       .query("hardwareLogs")
       .withIndex("by_datetime")
@@ -87,6 +89,7 @@ export const saveLog = mutation({
     datetime:       v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await requireAuth(ctx);
     const datetime = args.datetime ?? new Date().toISOString();
     return await ctx.db.insert(
       "hardwareLogs",
@@ -107,6 +110,7 @@ export const saveLog = mutation({
 export const migrateLegacyLogs = mutation({
   args: {},
   handler: async (ctx) => {
+    await requireAuth(ctx);
     const docs = await ctx.db
       .query("hardwareLogs")
       .withIndex("by_datetime")

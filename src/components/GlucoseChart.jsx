@@ -42,7 +42,7 @@ export default function GlucoseChart({ readings }) {
     }))
 
   return (
-    <div className="animate-fade-in flex flex-col h-full bg-white dark:bg-[#1a1625] rounded-xl p-6">
+    <div className="animate-fade-in flex flex-col min-h-[480px] bg-white dark:bg-[#1a1625] rounded-xl p-6">
       <div className="flex items-center gap-3 mb-8">
         <BarChart2 size={24} className="text-purple-500" />
         <h3 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -50,14 +50,14 @@ export default function GlucoseChart({ readings }) {
         </h3>
       </div>
 
-      <div className="flex-1 min-h-[350px]">
+      <div className="h-[350px] min-h-[350px] w-full min-w-0">
         {data.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-slate-400 dark:text-slate-600">
             <BarChart2 size={48} className="mb-4 opacity-10" />
             <p className="text-xs font-bold uppercase tracking-widest">No readings yet</p>
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={0}>
             <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-200 dark:text-slate-800/50" />
               <XAxis

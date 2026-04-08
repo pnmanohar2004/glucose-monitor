@@ -1,3 +1,4 @@
+import { UserButton } from '@clerk/react'
 import { Activity, Bell, Search, Sun, Moon, ArrowLeft, MoreVertical } from 'lucide-react'
 
 export default function Header({ onBack, theme, onToggleTheme }) {
@@ -30,6 +31,10 @@ export default function Header({ onBack, theme, onToggleTheme }) {
         >
           {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
         </button>
+
+        <div className="rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-1">
+          <UserButton />
+        </div>
 
         {/* System Overview Label */}
         <div className="hidden sm:flex items-center gap-3 px-4 py-2 border-l border-slate-200 dark:border-slate-800 ml-2">
