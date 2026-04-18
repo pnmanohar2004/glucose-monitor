@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Cpu, Fingerprint, Code, Database, Info, Check, Copy, Activity, Wifi, Heart, Droplets } from 'lucide-react'
+import { Cpu, Fingerprint, Code, Database, Info, Check, Copy, Activity, Wifi, Heart, Droplets, Thermometer } from 'lucide-react'
 import { useQuery } from "convex/react"
 import { api } from "../../convex/_generated/api"
 
@@ -112,12 +112,13 @@ Content-Type: application/json
 
 {
   "device": "ESP32-GlucoseMonitor",
-  "glucose_mgdl": 68,
-  "heart_rate": 14,
+  "glucose_mgdl": 167,
+  "heart_rate": 72,
   "spo2": 99,
   "wifi_rssi": -36,
-  "glucose_status": "LOW",
-  "hr_status": "LOW"
+  "temperature_c": 36.8,
+  "glucose_status": "NORMAL",
+  "hr_status": "NORMAL"
 }`}
             </pre>
           </div>
@@ -147,6 +148,7 @@ Content-Type: application/json
                   <th className="py-3 px-4 font-semibold text-slate-700 dark:text-white uppercase text-[10px] tracking-wider hidden sm:table-cell">Status</th>
                   <th className="py-3 px-4 font-semibold text-slate-700 dark:text-white uppercase text-[10px] tracking-wider hidden md:table-cell">Heart Rate</th>
                   <th className="py-3 px-4 font-semibold text-slate-700 dark:text-white uppercase text-[10px] tracking-wider hidden md:table-cell">SpO2</th>
+                  <th className="py-3 px-4 font-semibold text-slate-700 dark:text-white uppercase text-[10px] tracking-wider hidden md:table-cell">Temp (°C)</th>
                   <th className="py-3 px-4 font-semibold text-slate-700 dark:text-white uppercase text-[10px] tracking-wider hidden lg:table-cell">WiFi</th>
                   <th className="py-3 px-4 font-semibold text-slate-700 dark:text-white uppercase text-[10px] tracking-wider hidden lg:table-cell">Device</th>
                 </tr>
@@ -172,6 +174,11 @@ Content-Type: application/json
                     <td className="py-3 px-4 hidden md:table-cell">
                       {log.spo2 !== undefined
                         ? <><span className="font-semibold text-blue-500 dark:text-blue-400">{log.spo2}</span><span className="text-slate-400 text-xs ml-1">%</span></>
+                        : <span className="text-slate-400">—</span>}
+                    </td>
+                    <td className="py-3 px-4 hidden md:table-cell">
+                      {log.temperature !== undefined && log.temperature !== null
+                        ? <><Thermometer size={12} className="inline text-orange-500 mr-1" /><span className="font-semibold text-orange-500 dark:text-orange-400">{log.temperature.toFixed(1)}</span><span className="text-slate-400 text-xs ml-1">°C</span></>
                         : <span className="text-slate-400">—</span>}
                     </td>
                     <td className="py-3 px-4 text-slate-500 dark:text-gray-400 text-xs hidden lg:table-cell">{log.wifi_rssi !== undefined ? `${log.wifi_rssi} dBm` : '—'}</td>

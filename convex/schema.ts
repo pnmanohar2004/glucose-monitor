@@ -15,6 +15,7 @@ export default defineSchema({
     heart_rate: v.optional(v.number()),
     spo2: v.optional(v.number()),
     wifi_rssi: v.optional(v.number()),
+    temperature: v.optional(v.number()),
     glucose_status: v.optional(v.string()),
     hr_status: v.optional(v.string()),
     datetime: v.string(),

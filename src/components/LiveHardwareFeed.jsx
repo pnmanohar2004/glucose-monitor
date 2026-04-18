@@ -1,4 +1,4 @@
-import { Activity, Droplets, Heart, Wifi } from 'lucide-react'
+import { Activity, Droplets, Heart, Wifi, Thermometer } from 'lucide-react'
 import { useQuery } from "convex/react"
 import { api } from "../../convex/_generated/api"
 
@@ -57,7 +57,7 @@ export default function LiveHardwareFeed() {
           <>
             {/* Latest reading cards */}
             {hardwareLogs.slice(0, 1).map((log) => (
-              <div key={log._id + '_card'} className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div key={log._id + '_card'} className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div className="p-4 rounded-xl bg-purple-500/5 border border-purple-500/15 flex flex-col gap-1">
                   <div className="flex items-center gap-2 text-[10px] text-slate-500 uppercase font-bold">
                     <Droplets size={12} className="text-purple-500" /> Glucose
@@ -90,6 +90,14 @@ export default function LiveHardwareFeed() {
                   </div>
                   <div className="text-2xl font-bold text-slate-900 dark:text-white">{log.spo2 ?? '—'}</div>
                   <div className="text-[10px] text-slate-500">%</div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-orange-500/5 border border-orange-500/15 flex flex-col gap-1">
+                  <div className="flex items-center gap-2 text-[10px] text-slate-500 uppercase font-bold">
+                    <Thermometer size={12} className="text-orange-500" /> Temp
+                  </div>
+                  <div className="text-2xl font-bold text-slate-900 dark:text-white">{log.temperature ?? '—'}</div>
+                  <div className="text-[10px] text-slate-500">°C</div>
                 </div>
 
                 <div className="p-4 rounded-xl bg-slate-500/5 border border-slate-500/15 flex flex-col gap-1">

@@ -8,6 +8,7 @@ function buildHardwareLogDoc(args: {
   heart_rate?: number;
   spo2?: number;
   wifi_rssi?: number;
+  temperature?: number;
   glucose_status?: string;
   hr_status?: string;
   datetime: string;
@@ -19,6 +20,7 @@ function buildHardwareLogDoc(args: {
       heart_rate: args.heart_rate,
       spo2: args.spo2,
       wifi_rssi: args.wifi_rssi,
+      temperature: args.temperature,
       glucose_status: args.glucose_status,
       hr_status: args.hr_status,
       datetime: args.datetime,
@@ -35,6 +37,7 @@ function normalizeHardwareLog(doc: {
   heart_rate?: number;
   spo2?: number;
   wifi_rssi?: number;
+  temperature?: number;
   glucose_status?: string;
   hr_status?: string;
   datetime: string;
@@ -67,6 +70,7 @@ export const saveLogInternal = internalMutation({
     heart_rate:     v.optional(v.number()),
     spo2:           v.optional(v.number()),
     wifi_rssi:      v.optional(v.number()),
+    temperature:    v.optional(v.number()),
     glucose_status: v.optional(v.string()),
     hr_status:      v.optional(v.string()),
     datetime:       v.string(),
@@ -84,6 +88,7 @@ export const saveLog = mutation({
     heart_rate:     v.optional(v.number()),
     spo2:           v.optional(v.number()),
     wifi_rssi:      v.optional(v.number()),
+    temperature:    v.optional(v.number()),
     glucose_status: v.optional(v.string()),
     hr_status:      v.optional(v.string()),
     datetime:       v.optional(v.string()),
@@ -99,6 +104,7 @@ export const saveLog = mutation({
         heart_rate: args.heart_rate,
         spo2: args.spo2,
         wifi_rssi: args.wifi_rssi,
+        temperature: args.temperature,
         glucose_status: args.glucose_status,
         hr_status: args.hr_status,
         datetime,

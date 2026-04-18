@@ -64,6 +64,10 @@ http.route({
       const datetime =
         typeof body.datetime === "string" ? body.datetime : new Date().toISOString();
 
+      // ESP32 sends temperature as "temperature_c", fallback to "temperature"
+      const temperatureRaw =
+        body.temperature_c !== undefined ? body.temperature_c : body.temperature;
+
       const mutationArgs = Object.fromEntries(
         Object.entries({
           device: optionalString(body.device) ?? "ESP32",
@@ -71,6 +75,7 @@ http.route({
           heart_rate: optionalNumber(body.heart_rate),
           spo2: optionalNumber(body.spo2),
           wifi_rssi: optionalNumber(body.wifi_rssi),
+          temperature: optionalNumber(temperatureRaw),
           glucose_status: optionalString(body.glucose_status),
           hr_status: optionalString(body.hr_status),
           datetime,
