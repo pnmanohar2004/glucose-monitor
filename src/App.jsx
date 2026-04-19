@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect } from 'react'
-import { Show, SignIn, SignUp } from '@clerk/react'
+import { Show, SignIn, SignUp, useClerk } from '@clerk/react'
 import { Activity, ArrowLeft } from 'lucide-react'
 import { Authenticated, AuthLoading, Unauthenticated, useMutation, useQuery } from 'convex/react'
 import { api } from '../convex/_generated/api'
@@ -14,56 +14,56 @@ import LandingPage from './components/LandingPage.jsx'
 import Sidebar from './components/Sidebar.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 
-function Dashboard({ readings, onSave, onDelete, onBack, theme, onToggleTheme }) {
+function Dashboard({ readings, hardwareLogs, onSave, onDelete, onBack, theme, onToggleTheme }) {
   const [activeTab, setActiveTab] = useState('Historical Logs')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-500 animate-fade-in">
-      <Sidebar onBack={onBack} activeTab={activeTab} onTabChange={setActiveTab} />
+    <div className="min-h-screen flex bg-[#f5f6fa] dark:bg-[#07080f] text-slate-900 dark:text-white transition-colors duration-300 animate-fade-in">
+      <Sidebar
+        onBack={onBack}
+        activeTab={activeTab}
+        onTabChange={(tab) => { setActiveTab(tab); setSidebarOpen(false) }}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-      <div className="flex-1 flex flex-col h-screen overflow-y-auto w-full">
-        <Header onBack={onBack} theme={theme} onToggleTheme={onToggleTheme} />
+      <div className="flex-1 flex flex-col min-h-screen overflow-y-auto w-full">
+        <Header onBack={onBack} theme={theme} onToggleTheme={onToggleTheme} onMenuClick={() => setSidebarOpen(true)} />
 
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 flex flex-col gap-8">
+        <main className="flex-1 max-w-7xl w-full mx-auto px-5 py-5 flex flex-col gap-6">
 
           {activeTab === 'Historical Logs' && (
             <>
               {/* Page Heading */}
-              <div className="flex flex-col gap-1 border-l-4 border-purple-500 pl-6 py-2">
-                <h2 className="text-3xl font-black tracking-tight uppercase italic">NIR Sensor Dashboard</h2>
-                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-white/30">Near-Infrared Light Penetration Stream</p>
+              <div className="flex flex-col gap-0.5 border-l-4 border-violet-500 pl-4 py-1">
+                <h2 className="text-xl font-black text-slate-900 dark:text-white">NIR Sensor Dashboard</h2>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-400 dark:text-white/25">Near-Infrared Light Penetration Stream</p>
               </div>
 
               {/* Stats Row */}
               <StatsCards readings={readings} />
 
-              {/* Main Chart Section: Large & Primary */}
-              <div className="glass-card p-10 border-slate-200 dark:border-white/5 shadow-2xl bg-white dark:bg-dark-800">
+              {/* Main Chart */}
+              <div className="rounded-2xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#0e1017] p-5">
                 <ErrorBoundary>
                   <GlucoseChart readings={readings} />
                 </ErrorBoundary>
               </div>
 
-              {/* Bottom Row: Form + Logs side by side */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Log Form */}
-                <div className="lg:col-span-1">
-                  <div className="glass-card p-8 border-dashed border-2 border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-white/[0.02]">
-                    <LogMeasurementForm onSave={onSave} />
-                  </div>
+              {/* Bottom Row: Form + Logs */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                <div className="lg:col-span-1 rounded-2xl border border-dashed border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#0e1017] p-5">
+                  <LogMeasurementForm onSave={onSave} />
                 </div>
-
-                {/* Activity Logs */}
-                <div className="lg:col-span-2">
-                  <div className="glass-card p-8 border-slate-200 dark:border-white/5 bg-white dark:bg-dark-800 h-full">
-                    <div className="flex items-center justify-between mb-8 border-b border-slate-100 dark:border-white/5 pb-4">
-                      <h3 className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
-                        <Activity size={14} className="text-purple-500" /> NIR Reading Log
-                      </h3>
-                      <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">ESP32 Cloud Sync</div>
-                    </div>
-                    <RecentLogs readings={readings} onDelete={onDelete} />
+                <div className="lg:col-span-2 rounded-2xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#0e1017] p-5">
+                  <div className="flex items-center justify-between mb-5 pb-4 border-b border-slate-100 dark:border-white/[0.06]">
+                    <h3 className="text-[12px] font-bold uppercase tracking-widest flex items-center gap-2 text-slate-700 dark:text-white/70">
+                      <Activity size={13} className="text-violet-500" /> NIR Reading Log
+                    </h3>
+                    <span className="text-[10px] font-semibold text-slate-400 dark:text-white/20 uppercase tracking-widest">Cloud Sync</span>
                   </div>
+                  <RecentLogs readings={readings} onDelete={onDelete} />
                 </div>
               </div>
             </>
@@ -71,9 +71,9 @@ function Dashboard({ readings, onSave, onDelete, onBack, theme, onToggleTheme })
 
           {activeTab === 'Webhook Logic' && (
             <>
-              <div className="flex flex-col gap-1 border-l-4 border-purple-500 pl-6 py-2">
-                <h2 className="text-3xl font-black tracking-tight uppercase italic">Webhook Controller</h2>
-                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-white/30">Data Ingestion Settings</p>
+              <div className="flex flex-col gap-0.5 border-l-4 border-violet-500 pl-4 py-1">
+                <h2 className="text-xl font-black text-slate-900 dark:text-white">Webhook Controller</h2>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-400 dark:text-white/25">Data Ingestion Settings</p>
               </div>
               <HardwareIntegration />
             </>
@@ -81,9 +81,9 @@ function Dashboard({ readings, onSave, onDelete, onBack, theme, onToggleTheme })
 
           {activeTab === 'Live Feed' && (
             <>
-              <div className="flex flex-col gap-1 border-l-4 border-purple-500 pl-6 py-2">
-                <h2 className="text-3xl font-black tracking-tight uppercase italic">Live Feed</h2>
-                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-white/30">Real-Time Sensor Link</p>
+              <div className="flex flex-col gap-0.5 border-l-4 border-violet-500 pl-4 py-1">
+                <h2 className="text-xl font-black text-slate-900 dark:text-white">Live Feed</h2>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-400 dark:text-white/25">Real-Time Sensor Link</p>
               </div>
               <LiveHardwareFeed />
             </>
@@ -100,13 +100,13 @@ function Dashboard({ readings, onSave, onDelete, onBack, theme, onToggleTheme })
         </main>
 
         {/* Footer */}
-        <footer className="text-center py-16 border-t border-slate-100 dark:border-white/5 bg-white dark:bg-dark-900 transition-colors">
-          <div className="max-w-7xl mx-auto flex flex-col items-center gap-8 opacity-40">
-            <div className="flex items-center gap-3">
-              <Activity className="text-purple-500" size={16} />
-              <span className="font-black text-[10px] uppercase tracking-[0.6em]">GlucoSense NIR Optical Core</span>
+        <footer className="px-5 py-4 border-t border-slate-100 dark:border-white/[0.05] bg-white dark:bg-[#0b0c14]">
+          <div className="flex items-center justify-between max-w-7xl mx-auto">
+            <div className="flex items-center gap-2 opacity-30">
+              <Activity size={13} className="text-violet-500" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.35em] text-slate-600 dark:text-white">GlucoSense</span>
             </div>
-            <p className="text-[9px] font-black uppercase tracking-[0.8em]">© 2026 Powered by Convex Cloud Persistence</p>
+            <p className="text-[10px] font-semibold text-slate-400 dark:text-white/20">© 2026 · Convex Cloud</p>
           </div>
         </footer>
       </div>
@@ -215,7 +215,7 @@ function AuthScreen({ mode, theme, onToggleTheme, onBack }) {
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center">
           <div className="space-y-6">
             <div className="text-[10px] uppercase font-black tracking-[0.4em] text-purple-600 dark:text-purple-400">Bio Portal Access</div>
-            <h1 className="text-5xl font-black italic tracking-tight">{isSignUp ? 'Create your account.' : 'Sign in to the dashboard.'}</h1>
+            <h1 className="text-5xl font-black tracking-tight">{isSignUp ? 'Create your account.' : 'Sign in to the dashboard.'}</h1>
             <p className="max-w-xl text-slate-500 dark:text-white/50 text-lg">
               Complete authentication here and you will be redirected directly to the dashboard.
             </p>
@@ -294,6 +294,7 @@ function AuthenticatedApp({ theme, onToggleTheme }) {
     <Show when="signed-in">
       <Dashboard
         readings={dashboardReadings}
+        hardwareLogs={hardwareLogs}
         onSave={handleSave}
         onDelete={handleDelete}
         onBack={() => { }}

@@ -1,72 +1,152 @@
 import React from 'react'
-import { Activity, Clock, Database, Bell, Settings, LogOut, Webhook } from 'lucide-react'
+import { useClerk } from '@clerk/react'
+import { Activity, Clock, Database, Bell, Settings, LogOut, Webhook, Radio, X } from 'lucide-react'
 
-export default function Sidebar({ onBack, activeTab, onTabChange }) {
-  const NavItem = ({ icon: Icon, label, active }) => (
-    <button
-      onClick={() => onTabChange(label)}
-      className={`w-full flex items-center gap-4 px-4 py-3.5 mb-1 rounded-xl transition-all duration-300 ${
-        active 
-          ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30' 
-          : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white'
-      }`}
-    >
-      <Icon size={20} className={active ? 'text-white' : 'text-slate-400 dark:text-slate-500'} />
-      <span className="font-bold text-sm tracking-wide">{label}</span>
-    </button>
-  )
+const NAV_GROUPS = [
+  {
+    label: 'Monitoring',
+    items: [
+      { icon: Radio,    label: 'Live Feed'       },
+      { icon: Clock,    label: 'Historical Logs' },
+      { icon: Webhook,  label: 'Webhook Logic'   },
+      { icon: Database, label: 'Device Nodes'    },
+    ],
+  },
+  {
+    label: 'System',
+    items: [
+      { icon: Bell,     label: 'Alerts & Rules'  },
+      { icon: Settings, label: 'Console Config'  },
+    ],
+  },
+]
 
+function SidebarContent({ activeTab, onTabChange, onClose, onExit }) {
   return (
-    <aside className="hidden lg:flex flex-col w-72 h-screen sticky top-0 border-r border-slate-200 dark:border-white/5 bg-white dark:bg-[#12121e]">
-      {/* Brand Header */}
-      <div className="h-24 flex items-center px-8 border-b border-slate-100 dark:border-white/5">
-        <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-blue-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20 mr-4">
-          <Activity size={20} className="text-white" />
+    <div className="flex flex-col h-full">
+
+      {/* ── Brand ── */}
+      <div className="h-14 flex items-center justify-between px-5
+                      border-b border-slate-100 dark:border-white/[0.06] shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600
+                          flex items-center justify-center shadow-md shadow-violet-500/30 shrink-0">
+            <Activity size={14} className="text-white" />
+          </div>
+          <span className="font-black text-[17px] tracking-tight text-slate-900 dark:text-white leading-none">
+            Gluco<span className="text-violet-500">Sense</span>
+          </span>
         </div>
-        <span className="font-bold text-2xl tracking-tighter text-slate-900 dark:text-white uppercase transition-colors">
-          Gluco<span className="text-purple-500 dark:text-purple-400">Sense</span>
-        </span>
+        {/* Close button — mobile only */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white
+                       hover:bg-slate-100 dark:hover:bg-white/10 transition-all"
+          >
+            <X size={18} />
+          </button>
+        )}
       </div>
 
-      {/* Navigation Space */}
-      <div className="flex-1 overflow-y-auto px-6 py-8 flex flex-col gap-10">
-        
-        {/* Monitoring Group */}
-        <div>
-          <div className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-4 ml-1">
-            Monitoring
+      {/* ── Nav ── */}
+      <nav className="flex-1 overflow-y-auto px-3 py-5 flex flex-col gap-6">
+        {NAV_GROUPS.map(group => (
+          <div key={group.label}>
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400 dark:text-white/20 mb-1.5 px-2">
+              {group.label}
+            </p>
+            <div className="flex flex-col gap-0.5">
+              {group.items.map(({ icon: Icon, label }) => {
+                const active = activeTab === label
+                return (
+                  <button
+                    key={label}
+                    onClick={() => onTabChange(label)}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 ${
+                      active
+                        ? 'bg-violet-600 text-white shadow-md shadow-violet-500/25'
+                        : 'text-slate-500 dark:text-white/40 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    <Icon size={17} className={active ? 'text-white' : 'text-slate-400 dark:text-white/25'} />
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
           </div>
-          <nav className="flex flex-col">
-            <NavItem icon={Activity} label="Live Feed" active={activeTab === 'Live Feed'} />
-            <NavItem icon={Clock} label="Historical Logs" active={activeTab === 'Historical Logs'} />
-            <NavItem icon={Webhook} label="Webhook Logic" active={activeTab === 'Webhook Logic'} />
-            <NavItem icon={Database} label="Device Nodes" active={activeTab === 'Device Nodes'} />
-          </nav>
-        </div>
+        ))}
+      </nav>
 
-        {/* System Group */}
-        <div>
-           <div className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-4 ml-1">
-            System
-          </div>
-          <nav className="flex flex-col">
-            <NavItem icon={Bell} label="Alerts & Rules" active={activeTab === 'Alerts & Rules'} />
-            <NavItem icon={Settings} label="Console Config" active={activeTab === 'Console Config'} />
-          </nav>
-        </div>
-
-      </div>
-
-      {/* Footer / Exit */}
-      <div className="p-6 border-t border-slate-100 dark:border-white/5 mt-auto">
-        <button 
-          onClick={onBack}
-          className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 text-slate-500 dark:text-slate-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+      {/* ── Footer ── */}
+      <div className="px-3 py-4 border-t border-slate-100 dark:border-white/[0.06] shrink-0">
+        <button
+          onClick={onExit}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold
+                     text-slate-400 dark:text-white/30
+                     hover:bg-red-50 dark:hover:bg-red-500/10
+                     hover:text-red-500 dark:hover:text-red-400
+                     transition-all duration-150"
         >
-          <LogOut size={20} />
-          <span className="font-bold text-sm tracking-wide">Exit</span>
+          <LogOut size={16} />
+          Exit Portal
         </button>
       </div>
-    </aside>
+    </div>
+  )
+}
+
+export default function Sidebar({ onBack, activeTab, onTabChange, isOpen, onClose }) {
+  const { signOut } = useClerk()
+
+  const handleExit = async () => {
+    try {
+      await signOut()
+    } catch {
+      onBack?.()
+    }
+  }
+
+  return (
+    <>
+      {/* ── Desktop sidebar (always visible) ── */}
+      <aside className="hidden lg:flex flex-col w-60 h-screen sticky top-0 shrink-0
+                        bg-white dark:bg-[#0b0c14]
+                        border-r border-slate-100 dark:border-white/[0.06]
+                        transition-colors duration-300">
+        <SidebarContent
+          activeTab={activeTab}
+          onTabChange={onTabChange}
+          onExit={handleExit}
+        />
+      </aside>
+
+      {/* ── Mobile overlay backdrop ── */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* ── Mobile slide-in drawer ── */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-72 flex flex-col
+                    bg-white dark:bg-[#0b0c14]
+                    border-r border-slate-100 dark:border-white/[0.06]
+                    shadow-2xl shadow-black/20
+                    transform transition-transform duration-300 ease-in-out
+                    lg:hidden
+                    ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+      >
+        <SidebarContent
+          activeTab={activeTab}
+          onTabChange={onTabChange}
+          onClose={onClose}
+          onExit={handleExit}
+        />
+      </aside>
+    </>
   )
 }
