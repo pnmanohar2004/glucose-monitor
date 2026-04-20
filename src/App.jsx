@@ -13,6 +13,7 @@ import LiveHardwareFeed from './components/LiveHardwareFeed.jsx'
 import LandingPage from './components/LandingPage.jsx'
 import Sidebar from './components/Sidebar.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
+import AlertsAndRules from './components/AlertsAndRules.jsx'
 
 function Dashboard({ readings, hardwareLogs, onSave, onDelete, onBack, theme, onToggleTheme }) {
   const [activeTab, setActiveTab] = useState('Historical Logs')
@@ -89,8 +90,12 @@ function Dashboard({ readings, hardwareLogs, onSave, onDelete, onBack, theme, on
             </>
           )}
 
+          {activeTab === 'Alerts & Rules' && (
+            <AlertsAndRules readings={readings} />
+          )}
+
           {/* Placeholder for other tabs */}
-          {(activeTab === 'Device Nodes' || activeTab === 'Alerts & Rules' || activeTab === 'Console Config') && (
+          {(activeTab === 'Device Nodes' || activeTab === 'Console Config') && (
             <div className="flex flex-col items-center justify-center flex-1 h-[60vh] opacity-50">
               <Activity className="text-purple-500 mb-4 animate-pulse" size={48} />
               <h2 className="text-2xl font-bold uppercase tracking-widest">{activeTab}</h2>
